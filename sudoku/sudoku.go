@@ -68,12 +68,33 @@ func solveSudoku(path string) (string, error) {
 	rows := "ABCDEFGHI"
 	cols := "123456789"
 
-	ind := crossIndex(rows, cols)
-	fmt.Println(ind)
+	inds := crossIndex(rows, cols)
+	fmt.Println(inds)
 
 	// Create slice of all units in the Sudoku board.
 	unitsAll := createUnitsSlice(rows, cols)
-	fmt.Println(unitsAll)
+	//fmt.Println(unitsAll)
+
+	// create map of index : its respective units (rows & cols & blocks)
+	// i.e. map['A1'] = [["A2", "A3", "A4", ...],....]
+	// TODO: Should I really be using make here? var (zero/nil) value would be
+	// better, then w/in `==` statement, I can check to see if it exists first?
+	//var indToUnits map[string][][]string
+	indToUnits := make(map[string][][]string)
+	for _, ind := range inds {
+		for _, unit := range unitsAll {
+			// determine if the target index is contained in the current unit
+			for _, ui := range unit {
+				if ind == ui {
+					// add unit to map and break loop
+					indToUnits[ind] = append(indToUnits[ind], unit)
+					break
+				}
+			}
+		}
+	}
+
+	fmt.Println(indToUnits)
 
 	// Convert to grid
 
