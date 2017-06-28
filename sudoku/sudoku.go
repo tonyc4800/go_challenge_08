@@ -37,14 +37,20 @@ func solveSudoku(path string) (string, error) {
 	// `blockUnits`(3x3 grid).
 
 	// Create `rowUnits`.
+	// rowUnits will look similar to > [[A1 A2 A3 A4 A5 A6 A7 A8 A9]...]
 	var rowUnits [][]string
 	for _, r := range rows {
-		cUnit := crossIndex(string(r), cols)
-		rowUnits = append(rowUnits, cUnit)
+		rowUnits = append(rowUnits, crossIndex(string(r), cols))
 	}
 	fmt.Println(rowUnits)
 
 	// Create `colUnits`.
+	// colUnits will look similar to > [[A1 B1 C1 D1 E1 F1 G1 H1 I1]...]
+	var colUnits [][]string
+	for _, c := range cols {
+		colUnits = append(colUnits, crossIndex(rows, string(c)))
+	}
+	fmt.Println(colUnits)
 
 	// Create `blockUnits`.
 
