@@ -55,10 +55,34 @@ func createUnitsSlice(rows string, cols string) [][]string {
 	return unitsSlice
 }
 
+// eliminate iterates the accepted Sudoku puzzle and eliminates values from
+// peers of the given box.  A Sudoku puzzle is returned after all values have
+// been evaluated.
+func eliminate(sVals map[string][]string) map[string][]string {
+	// TODO: complete
+
+}
+
+// onlyChoice assigns values for a given box when there is only one potential
+// solution for the given box.
+func onlyChoice(sVals map[string][]string) map[string][]string {
+	// TODO: complete
+
+}
+
+// nakedGroup eliminates values from the passed Sudoku puzzle and eliminates
+// values using the naked twins strategy.  A more general form of the naked
+// twins strategy is used here, where "naked tripplets" could also be solved.
+func nakedGroup(sVals map[string][]string) map[string][]string {
+	// TODO: complete
+
+}
+
 // reduce applies constraints to the puzzle in attempt to reduce the number of
 // potential solutions for each box.  Various methods are applied in loop until
 // the methods no longer reduce the size of the puzzle.
 func reduce(sVals map[string][]string) map[string][]string {
+	// TODO: complete
 	improving := true
 	// TODO: look into make v var here
 	sValsRed := make(map[string][]string)
@@ -83,6 +107,7 @@ func reduce(sVals map[string][]string) map[string][]string {
 // a more complete Sudoku puzzle will be returned if possible.
 // NOTE: this function is recursive
 func search(sVals map[string][]string) map[string][]string {
+	// TODO: complete
 	sValsNew := make(map[string][]string)
 	// reduce
 
