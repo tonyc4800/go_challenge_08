@@ -69,7 +69,6 @@ func solveSudoku(path string) (string, error) {
 	cols := "123456789"
 
 	inds := crossIndex(rows, cols)
-	fmt.Println(inds)
 
 	// Create slice of all units in the Sudoku board.
 	unitsAll := createUnitsSlice(rows, cols)
@@ -122,9 +121,18 @@ func solveSudoku(path string) (string, error) {
 		// assign slice of strings to indToPeers map
 		indToPeers[ind] = peerSlice
 	}
-	fmt.Println(indToPeers)
+	//fmt.Println(indToPeers)
 
-	// Convert to grid
+	// convert the string representing the board into a grid(map) that maps a
+	// key (index) to the values (label for the box, or possible label for the
+	// box). for instance, if we know A1=7, map['A1'] = '7', but if the given
+	// index is empty (B2, as an example), the corresponding value would be
+	// '123456789' (map['B2'] = '123456789')
+
+	//sVals := make(map[string][]string)
+	for _, c := range data {
+		fmt.Println(string(c))
+	}
 
 	// solve
 
