@@ -55,6 +55,45 @@ func createUnitsSlice(rows string, cols string) [][]string {
 	return unitsSlice
 }
 
+// reduce applies constraints to the puzzle in attempt to reduce the number of
+// potential solutions for each box.  Various methods are applied in loop until
+// the methods no longer reduce the size of the puzzle.
+func reduce(sVals map[string][]string) map[string][]string {
+	improving := true
+	// TODO: look into make v var here
+	sValsRed := make(map[string][]string)
+	for improving {
+		// check how many boxes have been solved
+
+		// eliminate
+
+		// only choice
+
+		// naked_group
+
+		// check how many boxes were solved this round
+		// if no improvement, improv = false
+
+	}
+	return sValsRed
+}
+
+// search accepts a map of potential solutions for the Sudoku puzzle, iterates
+// all boxes and finds indexes with the fewest possible potential value options.
+// a more complete Sudoku puzzle will be returned if possible.
+// NOTE: this function is recursive
+func search(sVals map[string][]string) map[string][]string {
+	sValsNew := make(map[string][]string)
+	// reduce
+
+	// check if solved
+
+	// choose a box with the fewest possible solutions
+
+	// use recurrence to attempt to solve each resulting puzzle
+	return sValsNew
+}
+
 func solveSudoku(path string) (string, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -133,7 +172,6 @@ func solveSudoku(path string) (string, error) {
 	// be matched to the grid index.
 	// TODO: this loop should occur before we initialize everything
 	// incase the input is faulty
-
 	sVals := make(map[string][]string)
 	i := 0
 	for _, c := range data {
