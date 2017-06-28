@@ -73,20 +73,22 @@ func solveSudoku(path string) (string, error) {
 
 	// Create slice of all units in the Sudoku board.
 	unitsAll := createUnitsSlice(rows, cols)
-	//fmt.Println(unitsAll)
 
-	// create map of index : its respective units (rows & cols & blocks)
-	// i.e. map['A1'] = [["A2", "A3", "A4", ...],....]
-	// TODO: Should I really be using make here? var (zero/nil) value would be
+	// indToUnits is a map of index : its respective units (rows & cols & blocks)
+	// i.e. `H8:[[H1 H2 H3 H4 H5 H6 H7 H8 H9] [A8 B8 C8 D8 E8 F8 G8 H8 I8]
+	// [G7 G8 G9 H7 H8 H9 I7 I8 I9]]``
+	// TODO: Should I be using make here? var (zero/nil) value would be
 	// better, then w/in `==` statement, I can check to see if it exists first?
 	//var indToUnits map[string][][]string
 	indToUnits := make(map[string][][]string)
 	for _, ind := range inds {
 		for _, unit := range unitsAll {
-			// determine if the target index is contained in the current unit
+			// Determine if the target index is contained in the current unit.
 			for _, ui := range unit {
 				if ind == ui {
-					// add unit to map and break loop
+					// The value is contained within the unit add unit to map
+					// and break the current loop.
+					// https://stackoverflow.com/questions/12677934/create-a-golang-map-of-lists
 					indToUnits[ind] = append(indToUnits[ind], unit)
 					break
 				}
@@ -94,7 +96,33 @@ func solveSudoku(path string) (string, error) {
 		}
 	}
 
-	fmt.Println(indToUnits)
+	//fmt.Println(indToUnits)
+
+	// indToPeers is a map of index : its respective peers. peers are all grid
+	// locations (indexes) in the same unit as a given index, no overlap.
+	// i.e."H8:[B8 G7 I9 G8 I8 H1 D8 E8 H8 H9 A8 G9 H2 H3 H5 C8 F8 I7 H4 H6 H7]"
+	// TODO: Should I be using make here? var (zero/nil) value would be
+	// better, then w/in `==` statement, I can check to see if it exists first?
+	// var indToUnits map[string][][]string
+	indToPeers := make(map[string][]string)
+	for _, ind := range inds {
+		peerSet := make(map[string]bool)
+		var peerSlice []string
+		uS := indToUnits[ind]
+		for _, u := range uS {
+			// build set of all values within a unit for a target index
+			for _, v := range u {
+				peerSet[v] = true
+			}
+		}
+		// convert set to slice of strings
+		for peer := range peerSet {
+			peerSlice = append(peerSlice, peer)
+		}
+		// assign slice of strings to indToPeers map
+		indToPeers[ind] = peerSlice
+	}
+	fmt.Println(indToPeers)
 
 	// Convert to grid
 
