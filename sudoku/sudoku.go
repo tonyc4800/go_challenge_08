@@ -42,7 +42,6 @@ func solveSudoku(path string) (string, error) {
 	for _, r := range rows {
 		rowUnits = append(rowUnits, crossIndex(string(r), cols))
 	}
-	fmt.Println(rowUnits)
 
 	// Create `colUnits`.
 	// colUnits will look similar to > [[A1 B1 C1 D1 E1 F1 G1 H1 I1]...]
@@ -50,12 +49,22 @@ func solveSudoku(path string) (string, error) {
 	for _, c := range cols {
 		colUnits = append(colUnits, crossIndex(rows, string(c)))
 	}
-	fmt.Println(colUnits)
 
 	// Create `blockUnits`.
+	// blockUnits will look similar to > [[A1 A2 A3 B1 B2 B3 C1 C2 C3]...]
+	var blockUnits [][]string
+	rowGroup := [3]string{"ABC", "DEF", "GHI"}
+	colGroup := [3]string{"123", "456", "789"}
+	for _, ri := range rowGroup {
+		for _, ci := range colGroup {
+			blockUnits = append(blockUnits, crossIndex(ri, ci))
+		}
+	}
+	fmt.Println(blockUnits)
 
 	// Convert to grid
 
-	//
+	// solve
+
 	return "n", nil
 }
