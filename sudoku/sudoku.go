@@ -128,11 +128,29 @@ func solveSudoku(path string) (string, error) {
 	// box). for instance, if we know A1=7, map['A1'] = '7', but if the given
 	// index is empty (B2, as an example), the corresponding value would be
 	// '123456789' (map['B2'] = '123456789')
+	// NOTE: though ranging though the data, a seperate index value (`i`) is needed
+	// since we only increment the value when we find a character that needs to
+	// be matched to the grid index.
+	// TODO: this loop should occur before we initialize everything
+	// incase the input is faulty
 
-	//sVals := make(map[string][]string)
+	sVals := make(map[string][]string)
+	i := 0
 	for _, c := range data {
-		fmt.Println(string(c))
+		switch string(c) {
+		case "_":
+			sVals[inds[i]] = []string{"1", "2", "3", "4", "5", "6", "7", "8", "9"}
+			i++
+		case "1", "2", "3", "4", "5", "6", "7", "8", "9":
+			sVals[inds[i]] = []string{string(c)}
+			i++
+		case "\n", " ", "\r":
+			continue
+		default:
+			return "", fmt.Errorf("unexpected value (%v) in Sudoku input", c)
+		}
 	}
+	fmt.Println(sVals)
 
 	// solve
 
