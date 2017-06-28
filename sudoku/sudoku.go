@@ -36,12 +36,14 @@ func solveSudoku(path string) (string, error) {
 	// considered a `rowUnits`(horizontal), a `colUnits`(vertical), and a
 	// `blockUnits`(3x3 grid).
 
+	var unitsList [][]string
 	// Create `rowUnits`.
 	// rowUnits will look similar to > [[A1 A2 A3 A4 A5 A6 A7 A8 A9]...]
 	var rowUnits [][]string
 	for _, r := range rows {
 		rowUnits = append(rowUnits, crossIndex(string(r), cols))
 	}
+	unitsList = append(unitsList, rowUnits...)
 
 	// Create `colUnits`.
 	// colUnits will look similar to > [[A1 B1 C1 D1 E1 F1 G1 H1 I1]...]
@@ -49,6 +51,7 @@ func solveSudoku(path string) (string, error) {
 	for _, c := range cols {
 		colUnits = append(colUnits, crossIndex(rows, string(c)))
 	}
+	unitsList = append(unitsList, colUnits...)
 
 	// Create `blockUnits`.
 	// blockUnits will look similar to > [[A1 A2 A3 B1 B2 B3 C1 C2 C3]...]
@@ -60,7 +63,8 @@ func solveSudoku(path string) (string, error) {
 			blockUnits = append(blockUnits, crossIndex(ri, ci))
 		}
 	}
-	fmt.Println(blockUnits)
+	unitsList = append(unitsList, blockUnits...)
+	fmt.Println(unitsList)
 
 	// Convert to grid
 
