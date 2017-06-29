@@ -199,9 +199,52 @@ func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[s
 				ngS = append(ngS, vs)
 			}
 		}
-		fmt.Println("===================")
-		fmt.Println(ngS)
-		fmt.Println("===================")
+
+		// loop all target naked groups and create a set of the intersect peers
+		// from all groups.
+
+		for _, ng := range ngS {
+			fmt.Println("===================")
+			fmt.Println(ng)
+			pSet := make(map[string]bool)
+			var inxP []string
+			var pSs [][]string
+			// Create a slice of slices that contain all peers for the target
+			// index.
+			for _, ind := range ng {
+				ps := indToPeers[ind]
+				pSs = append(pSs, ps)
+			}
+
+			// `AND` all slices together to create a slice of all peers at the
+			// intersection of the included indexes.
+			// create set of first group
+			for _, vs := range pSs[0] {
+				pSet[vs] = true
+			}
+
+			// The first loop will have already been performed.
+			for _, ps := range pSs {
+				// check if in the set
+				for _, v := range ps {
+					_, ok := pSet[v]
+					if !ok {
+						pSet[v] = false
+					}
+				}
+			}
+			// all values in the set that are true, are now at the intersection
+			// of the indexes
+			for k, v := range pSet {
+				if v {
+					inxP = append(inxP, k)
+				}
+			}
+
+			fmt.Println("-------------------")
+			fmt.Println(inxP)
+			fmt.Println("===================")
+		}
 	}
 
 	// Create slice of all values of length n
