@@ -166,11 +166,17 @@ func onlyChoice(sVals map[string][]string, unitList [][]string) map[string][]str
 // nakedGroup eliminates values from the passed Sudoku puzzle and eliminates
 // values using the naked twins strategy.  A more general form of the naked
 // twins strategy is used here, where "naked tripplets" could also be solved.
-// func nakedGroup(sVals map[string][]string) map[string][]string {
-// 	// TODO: complete
+func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[string][]string {
+	// TODO: complete
+	// Create reverse map, mapping values (of length n) to indexes.
 
-// 	return sVals
-// }
+	// Create slice of all values of length n
+
+	// Iterate the slice of all values of length n and eliminate the values from
+	// the peers at the intersection of the naked_group.
+
+	return sVals
+}
 
 // reduce applies constraints to the puzzle in attempt to reduce the number of
 // potential solutions for each box.  Various methods are applied in loop until
@@ -191,7 +197,7 @@ func reduce(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 		// Attempt to solve puzzule using various strategies.
 		sVals = eliminate(sVals, indToPeers)
 		sVals = onlyChoice(sVals, unitsAll)
-
+		sVals = nakedGroup(sVals, indToPeers)
 		// naked_group
 		//TODO: include
 
