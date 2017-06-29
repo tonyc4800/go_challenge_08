@@ -190,6 +190,18 @@ func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[s
 				}
 			}
 		}
+
+		// iterate rsV to create a slice of slices that contain indexes
+		// where the values only have n solutions
+		var ngS [][]string
+		for _, vs := range rsV {
+			if len(vs) == n {
+				ngS = append(ngS, vs)
+			}
+		}
+		fmt.Println("===================")
+		fmt.Println(ngS)
+		fmt.Println("===================")
 	}
 
 	// Create slice of all values of length n
