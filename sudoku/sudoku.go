@@ -166,18 +166,31 @@ func onlyChoice(sVals map[string][]string, unitList [][]string) map[string][]str
 // values using the naked twins strategy.  A more general form of the naked
 // twins strategy is used here, where "naked tripplets" could also be solved.
 func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[string][]string {
+
 	// TODO: complete
+
 	// Create reverse map, mapping values (of length n) to indexes.
-	rsV := make(map[string][]string)
-	for k, vs := range sVals {
-		for _, v := range vs {
-			// https://stackoverflow.com/questions/12677934/create-a-golang-map-of-lists
-			rsV[v] = append(rsV[v], k)
+	ns := [2]int{2, 3}
+
+	// Loop each target group length. e.g. if n=2, we are searching for
+	// 'naked_twins'
+	for _, n := range ns {
+		rsV := make(map[string][]string)
+
+		// loop each index in the Sudoku puzzle
+		for k, vs := range sVals {
+
+			// if the number of possible values is equal to our target length,
+			// add its details to the rsV[value] = indexes
+			if len(vs) == n {
+				for _, v := range vs {
+
+					// https://stackoverflow.com/questions/12677934/create-a-golang-map-of-lists
+					rsV[v] = append(rsV[v], k)
+				}
+			}
 		}
 	}
-	fmt.Println(sVals)
-	fmt.Println("----------------")
-	fmt.Println(rsV)
 
 	// Create slice of all values of length n
 
