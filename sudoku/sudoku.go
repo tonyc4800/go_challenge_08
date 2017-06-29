@@ -175,7 +175,7 @@ func onlyChoice(sVals map[string][]string, unitList [][]string) map[string][]str
 // reduce applies constraints to the puzzle in attempt to reduce the number of
 // potential solutions for each box.  Various methods are applied in loop until
 // the methods no longer reduce the size of the puzzle.
-func reduce(sVals map[string][]string, unitsAll [][]string, indToPeers map[string][]string) map[string][]string {
+func reduce(sVals map[string][]string, unitsAll [][]string, indToPeers map[string][]string) (map[string][]string, bool) {
 	// TODO: complete
 	improving := true
 	// TODO: look into make v var here
@@ -211,25 +211,55 @@ func reduce(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 			improving = false
 		}
 
+		// Ensure all boxes have at least one possible solution value.
+		for _, valS := range sVals {
+			if len(valS) == 0 {
+				return sVals, false
+			}
+		}
+
 	}
-	return sVals
+	return sVals, true
 }
 
 // search accepts a map of potential solutions for the Sudoku puzzle, iterates
 // all boxes and finds indexes with the fewest possible potential value options.
 // a more complete Sudoku puzzle will be returned if possible.
 // NOTE: this function is recursive
-func search(sVals map[string][]string, unitsAll [][]string, indToPeers map[string][]string) map[string][]string {
+func search(sVals map[string][]string, unitsAll [][]string, indToPeers map[string][]string) (map[string][]string, bool) {
 	// TODO: complete
-	sVals = reduce(sVals, unitsAll, indToPeers)
+
 	// reduce
+	sVals, ok := reduce(sVals, unitsAll, indToPeers)
+	if !ok {
+		return sVals, false
+	}
 
-	// check if solved
+	// check if solved and obtain unfilled within min possible solutions.
+	// 9 is equal to number of possible values in any given box.
+	minV := 9
+	var tempVals []string
+	var mK string
+	for cK, valS := range sVals {
+		// Check if any values are unsolved.
+		if len(valS) > 1 {
+			// Choose a box with the fewest possible solutions
+			if len(valS) < minV {
+				minV = len(valS)
+				mK = cK
+				tempVals = valS
+			}
+		}
+	}
+	if minV < 9 {
+		// use recurrence to attempt to solve each resulting puzzle
+		// copy puzzle
+		// solve for value
+		// attempt new Sudoku
+		fmt.Printf("minV: %v, cK: %v, valS: %v\n", minV, mK, tempVals)
+	}
 
-	// choose a box with the fewest possible solutions
-
-	// use recurrence to attempt to solve each resulting puzzle
-	return sVals
+	return sVals, true
 }
 
 func solveSudoku(path string) (string, error) {
@@ -329,12 +359,14 @@ func solveSudoku(path string) (string, error) {
 	//fmt.Println(sVals)
 	display(sVals, inds)
 
-	sVals = search(sVals, unitsAll, indToPeers)
+	// solve
+	sVals, ok := search(sVals, unitsAll, indToPeers)
+	if !ok {
+		return "n", fmt.Errorf("unsolved puzzle")
+	}
 
 	//fmt.Println(sVals)
 	display(sVals, inds)
-
-	// solve
 
 	return "n", nil
 }
