@@ -17,6 +17,33 @@ func crossIndex(A string, N string) []string {
 	return ks
 }
 
+// display produces a 2-D grid representation of the current state of the board.
+func display(sVals map[string][]string, inds []string) {
+	//maxW := 1
+	i := 1
+	for _, u := range inds {
+		vS := sVals[u]
+		if len(vS) == 9 {
+			fmt.Printf(" . ")
+		} else if len(vS) == 1 {
+			fmt.Printf(" %v ", vS[0])
+		} else {
+			fmt.Printf("%v", vS)
+		}
+
+		if i%3 == 0 && i%9 != 0 {
+			fmt.Printf("|")
+		}
+		if i%9 == 0 {
+			fmt.Printf("\n")
+		}
+		if i%27 == 0 {
+			fmt.Printf("----------------------------\n")
+		}
+		i++
+	}
+}
+
 // createUnitsSlice creates all units. units in this context will be groups of
 // grid indexes that can only contain one instance of a number 1-9.  In Sudoku,
 // a unit will be considered a `rowUnits`(horizontal), a `colUnits`(vertical),
@@ -67,6 +94,7 @@ func eliminate(sVals map[string][]string, indToPeers map[string][]string) map[st
 			solvI = append(solvI, indx)
 		}
 	}
+	fmt.Println(solvI)
 
 	// Iterate solved values and remove this value from its peers.
 	// Loop each index that has been solved.
@@ -78,21 +106,26 @@ func eliminate(sVals map[string][]string, indToPeers map[string][]string) map[st
 		for _, peerI := range peers {
 			potSol := sVals[peerI]
 
-			// Copy potential values to new array, excluding the value to remove.
-			var rSol []string
-			for _, pV := range potSol {
-				if pV != val {
-					rSol = append(rSol, pV)
+			// TODO: happy path should be along main sightline
+			if len(potSol) != 1 {
+				// Copy potential values to new array, excluding the value to remove.
+				var rSol []string
+				for _, pV := range potSol {
+					if pV != val {
+						rSol = append(rSol, pV)
+					}
+				}
+
+				// Ensure the reduced solution slice is the same, or one smaller,
+				// than the previous solution slice.
+				if len(rSol) == len(potSol) || len(rSol) == len(potSol)-1 {
+
+					// Assign the reduced solution to the index.
+					//fmt.Printf("val:%v p:%v, r:%v\n", val, potSol, rSol)
+					sVals[peerI] = rSol
 				}
 			}
 
-			// Ensure the reduced solution slice is the same, or one smaller,
-			// than the previous solution slice.
-			if len(rSol) == len(potSol) || len(rSol) == len(potSol)-1 {
-
-				// Assign the reduced solution to the index.
-				sVals[peerI] = rSol
-			}
 		}
 	}
 
@@ -133,44 +166,62 @@ func onlyChoice(sVals map[string][]string, unitList [][]string) map[string][]str
 // nakedGroup eliminates values from the passed Sudoku puzzle and eliminates
 // values using the naked twins strategy.  A more general form of the naked
 // twins strategy is used here, where "naked tripplets" could also be solved.
-func nakedGroup(sVals map[string][]string) map[string][]string {
-	// TODO: complete
+// func nakedGroup(sVals map[string][]string) map[string][]string {
+// 	// TODO: complete
 
-	return sVals
-}
+// 	return sVals
+// }
 
 // reduce applies constraints to the puzzle in attempt to reduce the number of
 // potential solutions for each box.  Various methods are applied in loop until
 // the methods no longer reduce the size of the puzzle.
-func reduce(sVals map[string][]string, unitsAll [][]string) map[string][]string {
+func reduce(sVals map[string][]string, unitsAll [][]string, indToPeers map[string][]string) map[string][]string {
 	// TODO: complete
 	improving := true
 	// TODO: look into make v var here
-	sValsRed := make(map[string][]string)
-	sValsCurrent := make(map[string][]string)
 	for improving {
-		// check how many boxes have been solved
+
+		// Count how many boxes have been solved before reducing.
+		nSolI := 0
+		for _, vals := range sVals {
+			if len(vals) == 1 {
+				nSolI++
+			}
+		}
 
 		// eliminate
-
+		sVals = eliminate(sVals, indToPeers)
 		// only choice
-		sValsCurrent = onlyChoice(sValsCurrent, unitsAll)
-		// naked_group
+		sVals = onlyChoice(sVals, unitsAll)
 
-		// check how many boxes were solved this round
-		// if no improvement, improv = false
+		// naked_group
+		//TODO: include
+
+		// Count how many boxes are solved after reducing and compare to initial
+		// number.
+		nSolE := 0
+		for _, vals := range sVals {
+			if len(vals) == 1 {
+				nSolE++
+			}
+		}
+		fmt.Printf("start: %v, end: %v\n", nSolI, nSolE)
+		if nSolE == nSolI {
+			// There were no solutions obtained during reduction.
+			improving = false
+		}
 
 	}
-	return sValsRed
+	return sVals
 }
 
 // search accepts a map of potential solutions for the Sudoku puzzle, iterates
 // all boxes and finds indexes with the fewest possible potential value options.
 // a more complete Sudoku puzzle will be returned if possible.
 // NOTE: this function is recursive
-func search(sVals map[string][]string) map[string][]string {
+func search(sVals map[string][]string, unitsAll [][]string, indToPeers map[string][]string) map[string][]string {
 	// TODO: complete
-	sValsNew := make(map[string][]string)
+	sVals = reduce(sVals, unitsAll, indToPeers)
 	// reduce
 
 	// check if solved
@@ -178,7 +229,7 @@ func search(sVals map[string][]string) map[string][]string {
 	// choose a box with the fewest possible solutions
 
 	// use recurrence to attempt to solve each resulting puzzle
-	return sValsNew
+	return sVals
 }
 
 func solveSudoku(path string) (string, error) {
@@ -186,7 +237,7 @@ func solveSudoku(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	fmt.Printf("%v\n", string(data))
+	//fmt.Printf("%v\n", string(data))
 
 	// Global board information.  The Sudoku board is assumed to be a standard
 	// 9x9 (A-I)x(1-9) grid -- where the first index (upper left) would be `A1`
@@ -275,7 +326,13 @@ func solveSudoku(path string) (string, error) {
 			return "", fmt.Errorf("unexpected value (%v) in Sudoku input", c)
 		}
 	}
-	fmt.Println(sVals)
+	//fmt.Println(sVals)
+	display(sVals, inds)
+
+	sVals = search(sVals, unitsAll, indToPeers)
+
+	//fmt.Println(sVals)
+	display(sVals, inds)
 
 	// solve
 
