@@ -137,7 +137,7 @@ func onlyChoice(sVals map[string][]string, unitList [][]string) map[string][]str
 	for _, u := range unitList {
 		for _, d := range []string{"1", "2", "3", "4", "5", "6", "7", "8", "9"} {
 
-			// create slice of all locations that could be filled by d within
+			// Create slice of all locations that could be filled by d within
 			// the current unit.
 			var locS []string
 			for _, ind := range u {
@@ -149,7 +149,7 @@ func onlyChoice(sVals map[string][]string, unitList [][]string) map[string][]str
 				}
 			}
 
-			// if there is only one location where the value could be placed,
+			// If there is only one location where the value could be placed,
 			// assign that value to the location.
 			if len(locS) == 1 {
 				for _, i := range locS {
@@ -167,8 +167,6 @@ func onlyChoice(sVals map[string][]string, unitList [][]string) map[string][]str
 // twins strategy is used here, where "naked tripplets" could also be solved.
 func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[string][]string {
 
-	// TODO: complete
-
 	// Create reverse map, mapping values (of length n) to indexes.
 	ns := [2]int{2, 3}
 
@@ -177,11 +175,10 @@ func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[s
 	for _, n := range ns {
 		rsV := make(map[string][]string)
 
-		// loop each index in the Sudoku puzzle
 		for k, vs := range sVals {
 
-			// if the number of possible values is equal to our target length,
-			// add its details to the rsV[value] = indexes
+			// If the number of possible values is equal to our target length,
+			// add its details to the rsV[value] = indexes.
 			if len(vs) == n {
 				for _, v := range vs {
 
@@ -191,8 +188,8 @@ func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[s
 			}
 		}
 
-		// iterate rsV to create a slice of slices that contain indexes
-		// where the values only have n solutions
+		// Iterate rsV to create a slice of slices that contain indexes
+		// where the values only have n solutions.
 		var ngS [][]string
 		for _, vs := range rsV {
 			if len(vs) == n {
@@ -200,9 +197,8 @@ func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[s
 			}
 		}
 
-		// loop all target naked groups and create a set of the intersect peers
+		// Loop all target naked groups and create a set of the intersect peers
 		// from all groups.
-
 		for _, ng := range ngS {
 			fmt.Println("===================")
 			fmt.Println(ng)
@@ -273,11 +269,6 @@ func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[s
 		}
 	}
 
-	// Create slice of all values of length n
-
-	// Iterate the slice of all values of length n and eliminate the values from
-	// the peers at the intersection of the naked_group.
-
 	return sVals
 }
 
@@ -328,10 +319,11 @@ func reduce(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 	return sVals, true
 }
 
-// search accepts a map of potential solutions for the Sudoku puzzle, iterates
-// all boxes and finds indexes with the fewest possible potential value options.
-// a more complete Sudoku puzzle will be returned if possible.
-// NOTE: this function is recursive
+// search accepts a map of potential solutions for the Sudoku puzzle, reduces
+// the puzzle, then, as needed recursively iterates all boxes to find indexes
+// with the fewest possible potential value options. The board is then copied
+// and a guess is made at what the value should be, a more complete Sudoku
+// puzzle will be returned if possible.
 func search(sVals map[string][]string, unitsAll [][]string, indToPeers map[string][]string) (map[string][]string, bool) {
 
 	// First, reduce the board to eliminate unnecessary work.
@@ -343,7 +335,7 @@ func search(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 	// Check if solved and obtain unfilled within min possible solutions.
 	// 9 is equal to number of possible values in any given box.
 	minV := 9
-	var mK string
+	var minK string
 	for cK, valS := range sVals {
 
 		// Check if any values are unsolved.
@@ -352,8 +344,7 @@ func search(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 			// Choose a box with the fewest possible solutions
 			if len(valS) < minV {
 				minV = len(valS)
-				mK = cK
-				//tempVals := valS
+				minK = cK
 			}
 		}
 	}
@@ -366,11 +357,11 @@ func search(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 		}
 
 		// Attempt solution on new board for each potential value
-		for _, pS := range sVals[mK] {
+		for _, pS := range sVals[minK] {
 
 			// Assign one of the values to the position and use recurrence to
 			// attempt to solve each resulting puzzle
-			sValsCopy[mK] = []string{pS}
+			sValsCopy[minK] = []string{pS}
 			sValsCopy, ok = search(sValsCopy, unitsAll, indToPeers)
 			if !ok {
 				return sValsCopy, false
@@ -404,7 +395,6 @@ func solveSudoku(path string) (string, error) {
 	// [G7 G8 G9 H7 H8 H9 I7 I8 I9]]``
 	// TODO: Should I be using make here? var (zero/nil) value would be
 	// better, then w/in `==` statement, I can check to see if it exists first?
-	//var indToUnits map[string][][]string
 	indToUnits := make(map[string][][]string)
 	for _, ind := range inds {
 		for _, unit := range unitsAll {
@@ -448,7 +438,6 @@ func solveSudoku(path string) (string, error) {
 			}
 		}
 
-		// assign slice of strings to indToPeers map
 		indToPeers[ind] = peerSlice
 	}
 
@@ -457,12 +446,10 @@ func solveSudoku(path string) (string, error) {
 	// box). for instance, if we know A1=7, map['A1'] = '7', but if the given
 	// index is empty (B2, as an example), the corresponding value would be
 	// '123456789' (map['B2'] = '123456789')
-	// NOTE: though ranging though the data, a seperate index value (`i`) is needed
-	// since we only increment the value when we find a character that needs to
-	// be matched to the grid index.
-	// TODO: this loop should occur before we initialize everything
-	// incase the input is faulty
+	// TODO: this loop should occur before we initialize everything in case the
+	// input is faulty
 	sVals := make(map[string][]string)
+	// i acts as an increment for every target character found.
 	i := 0
 	for _, c := range data {
 		switch string(c) {
