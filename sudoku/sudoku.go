@@ -3,9 +3,9 @@ package sudoku
 import "fmt"
 import "io/ioutil"
 
-// crossIndex 'crosses'|'zips' two strings such that the two individual values
-// from each string join together to create a new value.  For example, if string
-// one is "ABC" and string two is "123", the resulting return value will be
+// crossIndex 'crosses' two strings such that the two individual values from
+// each string join together to create a new value.  For example, if string one
+// is "ABC" and string two is "123", the resulting return value will be;
 // ["A1","A2","A3","B1","B2","B3","C1","C2","C3"].
 func crossIndex(A string, N string) []string {
 	var ks []string
@@ -253,8 +253,24 @@ func search(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 	}
 	if minV < 9 {
 		// use recurrence to attempt to solve each resulting puzzle
-		// copy puzzle
-		// solve for value
+
+		// create a new copy of the Sudoku puzzle.
+		sValsCopy := make(map[string][]string)
+		for k, v := range sVals {
+			sValsCopy[k] = v
+		}
+
+		// attempt solution on new board for each potential value
+		for _, pS := range sVals[mK] {
+			// assign one of the values to the position.
+			sValsCopy[mK] = []string{pS}
+			sValsCopy, ok = search(sValsCopy, unitsAll, indToPeers)
+			if !ok {
+				return sValsCopy, false
+			}
+			return sValsCopy, true
+		}
+
 		// attempt new Sudoku
 		fmt.Printf("minV: %v, cK: %v, valS: %v\n", minV, mK, tempVals)
 	}
