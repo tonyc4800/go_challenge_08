@@ -234,7 +234,7 @@ func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[s
 
 			// LOOK INTO: why does toggling this line change the output of
 			// fmt.Println(inxP)? Something to due with order/hashing, I'd assume
-			//fmt.Println(pCount)
+			// fmt.Println(pCount)
 
 			// all values in the set that are in all ps, are now at the
 			// intersection of the indexes
@@ -247,10 +247,26 @@ func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[s
 			fmt.Println("-------------------")
 			fmt.Println(inxP)
 
-			// for _, d := range ng[0] {
-			// 	fmt.Printf("%v-", d)
-			// }
-			// fmt.Printf("\n")
+			for _, d := range sVals[ng[0]] {
+				// obtain digit were working with. either a group of 2 or 3
+				for _, ind := range inxP {
+					cS := sVals[ind]
+					if len(cS) > 1 {
+						// TODO: this should be in outter-happy path line
+						var rS []string
+						// loop current slice and eliminate values from above calc.
+						for _, v := range cS {
+							if v != d {
+								rS = append(rS, v)
+							}
+						}
+						// assign reduced value back to vals
+						sVals[ind] = rS
+						fmt.Printf("ind: %v, old: %v, new: %v\n", ind, cS, rS)
+					}
+				}
+			}
+			fmt.Printf("\n")
 
 			fmt.Println("===================")
 
