@@ -206,9 +206,10 @@ func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[s
 		for _, ng := range ngS {
 			fmt.Println("===================")
 			fmt.Println(ng)
-			pSet := make(map[string]bool)
+			pCount := make(map[string]int)
 			var inxP []string
 			var pSs [][]string
+
 			// Create a slice of slices that contain all peers for the target
 			// index.
 			for _, ind := range ng {
@@ -217,33 +218,42 @@ func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[s
 			}
 
 			// `AND` all slices together to create a slice of all peers at the
-			// intersection of the included indexes.
-			// create set of first group
-			for _, vs := range pSs[0] {
-				pSet[vs] = true
-			}
-
-			// The first loop will have already been performed.
+			// intersection of the included indexes. - create a mapping of val:count
 			for _, ps := range pSs {
 				// check if in the set
 				for _, v := range ps {
-					_, ok := pSet[v]
+					count, ok := pCount[v]
 					if !ok {
-						pSet[v] = false
+						pCount[v] = 1
+					} else {
+						count++
+						pCount[v] = count
 					}
 				}
 			}
-			// all values in the set that are true, are now at the intersection
-			// of the indexes
-			for k, v := range pSet {
-				if v {
+
+			// LOOK INTO: why does toggling this line change the output of
+			// fmt.Println(inxP)? Something to due with order/hashing, I'd assume
+			//fmt.Println(pCount)
+
+			// all values in the set that are in all ps, are now at the
+			// intersection of the indexes
+			for k, v := range pCount {
+				if v == n {
 					inxP = append(inxP, k)
 				}
 			}
 
 			fmt.Println("-------------------")
 			fmt.Println(inxP)
+
+			// for _, d := range ng[0] {
+			// 	fmt.Printf("%v-", d)
+			// }
+			// fmt.Printf("\n")
+
 			fmt.Println("===================")
+
 		}
 	}
 
@@ -417,7 +427,9 @@ func solveSudoku(path string) (string, error) {
 
 		// convert set to slice of strings
 		for peer := range peerSet {
-			peerSlice = append(peerSlice, peer)
+			if peer != ind {
+				peerSlice = append(peerSlice, peer)
+			}
 		}
 
 		// assign slice of strings to indToPeers map
