@@ -94,7 +94,6 @@ func eliminate(sVals map[string][]string, indToPeers map[string][]string) map[st
 			solvI = append(solvI, indx)
 		}
 	}
-	fmt.Println(solvI)
 
 	// Iterate solved values and remove this value from its peers.
 	// Loop each index that has been solved.
@@ -169,6 +168,16 @@ func onlyChoice(sVals map[string][]string, unitList [][]string) map[string][]str
 func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[string][]string {
 	// TODO: complete
 	// Create reverse map, mapping values (of length n) to indexes.
+	rsV := make(map[string][]string)
+	for k, vs := range sVals {
+		for _, v := range vs {
+			// https://stackoverflow.com/questions/12677934/create-a-golang-map-of-lists
+			rsV[v] = append(rsV[v], k)
+		}
+	}
+	fmt.Println(sVals)
+	fmt.Println("----------------")
+	fmt.Println(rsV)
 
 	// Create slice of all values of length n
 
@@ -194,12 +203,11 @@ func reduce(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 			}
 		}
 
-		// Attempt to solve puzzule using various strategies.
+		// Attempt to solve puzzle using various strategies.
 		sVals = eliminate(sVals, indToPeers)
 		sVals = onlyChoice(sVals, unitsAll)
+		// TODO: check to see if puzzle is solved before calling nakedGroup
 		sVals = nakedGroup(sVals, indToPeers)
-		// naked_group
-		//TODO: include
 
 		// Count how many boxes are solved after reducing and compare to initial
 		// number.
@@ -209,7 +217,7 @@ func reduce(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 				nSolE++
 			}
 		}
-		fmt.Printf("start: %v, end: %v\n", nSolI, nSolE)
+
 		if nSolE == nSolI {
 			// There were no solutions obtained during reduction.
 			improving = false
