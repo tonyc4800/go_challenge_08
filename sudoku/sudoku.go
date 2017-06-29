@@ -176,9 +176,8 @@ func onlyChoice(sVals map[string][]string, unitList [][]string) map[string][]str
 // potential solutions for each box.  Various methods are applied in loop until
 // the methods no longer reduce the size of the puzzle.
 func reduce(sVals map[string][]string, unitsAll [][]string, indToPeers map[string][]string) (map[string][]string, bool) {
-	// TODO: complete
+
 	improving := true
-	// TODO: look into make v var here
 	for improving {
 
 		// Count how many boxes have been solved before reducing.
@@ -189,9 +188,8 @@ func reduce(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 			}
 		}
 
-		// eliminate
+		// Attempt to solve puzzule using various strategies.
 		sVals = eliminate(sVals, indToPeers)
-		// only choice
 		sVals = onlyChoice(sVals, unitsAll)
 
 		// naked_group
@@ -227,42 +225,43 @@ func reduce(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 // a more complete Sudoku puzzle will be returned if possible.
 // NOTE: this function is recursive
 func search(sVals map[string][]string, unitsAll [][]string, indToPeers map[string][]string) (map[string][]string, bool) {
-	// TODO: complete
 
-	// reduce
+	// First, reduce the board to eliminate unnecessary work.
 	sVals, ok := reduce(sVals, unitsAll, indToPeers)
 	if !ok {
 		return sVals, false
 	}
 
-	// check if solved and obtain unfilled within min possible solutions.
+	// Check if solved and obtain unfilled within min possible solutions.
 	// 9 is equal to number of possible values in any given box.
 	minV := 9
-	var tempVals []string
 	var mK string
 	for cK, valS := range sVals {
+
 		// Check if any values are unsolved.
 		if len(valS) > 1 {
+
 			// Choose a box with the fewest possible solutions
 			if len(valS) < minV {
 				minV = len(valS)
 				mK = cK
-				tempVals = valS
+				//tempVals := valS
 			}
 		}
 	}
 	if minV < 9 {
-		// use recurrence to attempt to solve each resulting puzzle
 
-		// create a new copy of the Sudoku puzzle.
+		// Create a new copy of the Sudoku puzzle.
 		sValsCopy := make(map[string][]string)
 		for k, v := range sVals {
 			sValsCopy[k] = v
 		}
 
-		// attempt solution on new board for each potential value
+		// Attempt solution on new board for each potential value
 		for _, pS := range sVals[mK] {
-			// assign one of the values to the position.
+
+			// Assign one of the values to the position and use recurrence to
+			// attempt to solve each resulting puzzle
 			sValsCopy[mK] = []string{pS}
 			sValsCopy, ok = search(sValsCopy, unitsAll, indToPeers)
 			if !ok {
@@ -270,9 +269,6 @@ func search(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 			}
 			return sValsCopy, true
 		}
-
-		// attempt new Sudoku
-		fmt.Printf("minV: %v, cK: %v, valS: %v\n", minV, mK, tempVals)
 	}
 
 	return sVals, true
@@ -283,7 +279,6 @@ func solveSudoku(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	//fmt.Printf("%v\n", string(data))
 
 	// Global board information.  The Sudoku board is assumed to be a standard
 	// 9x9 (A-I)x(1-9) grid -- where the first index (upper left) would be `A1`
@@ -308,6 +303,7 @@ func solveSudoku(path string) (string, error) {
 			// Determine if the target index is contained in the current unit.
 			for _, ui := range unit {
 				if ind == ui {
+
 					// The value is contained within the unit add unit to map
 					// and break the current loop.
 					// https://stackoverflow.com/questions/12677934/create-a-golang-map-of-lists
@@ -317,8 +313,6 @@ func solveSudoku(path string) (string, error) {
 			}
 		}
 	}
-
-	//fmt.Println(indToUnits)
 
 	// indToPeers is a map of index : its respective peers. peers are all grid
 	// locations (indexes) in the same unit as a given index, no overlap.
@@ -332,19 +326,21 @@ func solveSudoku(path string) (string, error) {
 		var peerSlice []string
 		uS := indToUnits[ind]
 		for _, u := range uS {
+
 			// build set of all values within a unit for a target index
 			for _, v := range u {
 				peerSet[v] = true
 			}
 		}
+
 		// convert set to slice of strings
 		for peer := range peerSet {
 			peerSlice = append(peerSlice, peer)
 		}
+
 		// assign slice of strings to indToPeers map
 		indToPeers[ind] = peerSlice
 	}
-	//fmt.Println(indToPeers)
 
 	// convert the string representing the board into a grid(map) that maps a
 	// key (index) to the values (label for the box, or possible label for the
@@ -372,7 +368,7 @@ func solveSudoku(path string) (string, error) {
 			return "", fmt.Errorf("unexpected value (%v) in Sudoku input", c)
 		}
 	}
-	//fmt.Println(sVals)
+
 	display(sVals, inds)
 
 	// solve
@@ -381,7 +377,6 @@ func solveSudoku(path string) (string, error) {
 		return "n", fmt.Errorf("unsolved puzzle")
 	}
 
-	//fmt.Println(sVals)
 	display(sVals, inds)
 
 	return "n", nil
