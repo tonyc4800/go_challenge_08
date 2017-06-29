@@ -61,13 +61,37 @@ func createUnitsSlice(rows string, cols string) [][]string {
 func eliminate(sVals map[string][]string) map[string][]string {
 	// TODO: complete
 
+	return sVals
 }
 
-// onlyChoice assigns values for a given box when there is only one potential
-// solution for the given box.
-func onlyChoice(sVals map[string][]string) map[string][]string {
+// onlyChoice assigns a value for to a box when there are no other locations
+// within a unit for the given value to be placed.
+func onlyChoice(sVals map[string][]string, unitList [][]string) map[string][]string {
 	// TODO: complete
+	for _, u := range unitList {
+		for _, d := range []string{"1", "2", "3", "4", "5", "6", "7", "8", "9"} {
+			// create slice of all locations that could be filled by d within
+			// the current unit.
+			var locS []string
+			for _, ind := range u {
+				pS := sVals[ind]
+				for _, v := range pS {
+					if d == v {
+						locS = append(locS, ind)
+					}
+				}
+			}
+			// if there is only one location where the value could be placed,
+			// assign that value to the location.
+			if len(locS) == 1 {
+				for _, i := range locS {
+					sVals[i] = []string{d}
+				}
+			}
+		}
+	}
 
+	return sVals
 }
 
 // nakedGroup eliminates values from the passed Sudoku puzzle and eliminates
@@ -76,23 +100,25 @@ func onlyChoice(sVals map[string][]string) map[string][]string {
 func nakedGroup(sVals map[string][]string) map[string][]string {
 	// TODO: complete
 
+	return sVals
 }
 
 // reduce applies constraints to the puzzle in attempt to reduce the number of
 // potential solutions for each box.  Various methods are applied in loop until
 // the methods no longer reduce the size of the puzzle.
-func reduce(sVals map[string][]string) map[string][]string {
+func reduce(sVals map[string][]string, unitsAll [][]string) map[string][]string {
 	// TODO: complete
 	improving := true
 	// TODO: look into make v var here
 	sValsRed := make(map[string][]string)
+	sValsCurrent := make(map[string][]string)
 	for improving {
 		// check how many boxes have been solved
 
 		// eliminate
 
 		// only choice
-
+		sValsCurrent = onlyChoice(sValsCurrent, unitsAll)
 		// naked_group
 
 		// check how many boxes were solved this round
