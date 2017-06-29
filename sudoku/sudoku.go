@@ -58,8 +58,43 @@ func createUnitsSlice(rows string, cols string) [][]string {
 // eliminate iterates the accepted Sudoku puzzle and eliminates values from
 // peers of the given box.  A Sudoku puzzle is returned after all values have
 // been evaluated.
-func eliminate(sVals map[string][]string) map[string][]string {
-	// TODO: complete
+func eliminate(sVals map[string][]string, indToPeers map[string][]string) map[string][]string {
+
+	// Obtain all solved indexes i.e. it contains only one value.
+	var solvI []string
+	for indx, vals := range sVals {
+		if len(vals) == 1 {
+			solvI = append(solvI, indx)
+		}
+	}
+
+	// Iterate solved values and remove this value from its peers.
+	// Loop each index that has been solved.
+	for _, si := range solvI {
+		val := sVals[si][0]
+		peers := indToPeers[si]
+
+		// Iterate indexes that is a peer of a solved index.
+		for _, peerI := range peers {
+			potSol := sVals[peerI]
+
+			// Copy potential values to new array, excluding the value to remove.
+			var rSol []string
+			for _, pV := range potSol {
+				if pV != val {
+					rSol = append(rSol, pV)
+				}
+			}
+
+			// Ensure the reduced solution slice is the same, or one smaller,
+			// than the previous solution slice.
+			if len(rSol) == len(potSol) || len(rSol) == len(potSol)-1 {
+
+				// Assign the reduced solution to the index.
+				sVals[peerI] = rSol
+			}
+		}
+	}
 
 	return sVals
 }
@@ -67,9 +102,9 @@ func eliminate(sVals map[string][]string) map[string][]string {
 // onlyChoice assigns a value for to a box when there are no other locations
 // within a unit for the given value to be placed.
 func onlyChoice(sVals map[string][]string, unitList [][]string) map[string][]string {
-	// TODO: complete
 	for _, u := range unitList {
 		for _, d := range []string{"1", "2", "3", "4", "5", "6", "7", "8", "9"} {
+
 			// create slice of all locations that could be filled by d within
 			// the current unit.
 			var locS []string
@@ -81,6 +116,7 @@ func onlyChoice(sVals map[string][]string, unitList [][]string) map[string][]str
 					}
 				}
 			}
+
 			// if there is only one location where the value could be placed,
 			// assign that value to the location.
 			if len(locS) == 1 {
