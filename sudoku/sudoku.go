@@ -239,8 +239,6 @@ func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[s
 				for _, ind := range inxP {
 					cS := sVals[ind]
 					if len(cS) > 1 {
-
-						// TODO: this should be in outter-happy path line
 						var rS []string
 
 						// loop current slice and eliminate values from above calc.
@@ -266,8 +264,8 @@ func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[s
 // the methods no longer reduce the size of the puzzle.
 func reduce(sVals map[string][]string, unitsAll [][]string, indToPeers map[string][]string) (map[string][]string, bool) {
 
-	improving := true
-	for improving {
+	imprv := true
+	for imprv {
 
 		// Count how many boxes have been solved before reducing.
 		nSolI := 0
@@ -281,7 +279,17 @@ func reduce(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 		sVals = eliminate(sVals, indToPeers)
 		sVals = onlyChoice(sVals, unitsAll)
 
-		// TODO: check to see if puzzle is solved before calling nakedGroup
+		// If all 81 values have been solved, return solved Puzzle.
+		nSolC := 0
+		for _, vals := range sVals {
+			if len(vals) == 1 {
+				nSolC++
+			}
+		}
+		if nSolC == 81 {
+			return sVals, true
+		}
+
 		sVals = nakedGroup(sVals, indToPeers)
 
 		// Count how many boxes are solved after reducing and compare to initial
@@ -294,7 +302,7 @@ func reduce(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 		}
 
 		if nSolE == nSolI {
-			improving = false
+			imprv = false
 		}
 
 		// Ensure all boxes have at least one possible solution value.
@@ -377,8 +385,6 @@ func solveSudoku(path string) (string, error) {
 	// indToUnits is a map of index : its respective units (rows & cols & blocks)
 	// i.e. `H8:[[H1 H2 H3 H4 H5 H6 H7 H8 H9] [A8 B8 C8 D8 E8 F8 G8 H8 I8]
 	// [G7 G8 G9 H7 H8 H9 I7 I8 I9]]``
-	// TODO: Should I be using make here? var (zero/nil) value would be
-	// better, then w/in `==` statement, I can check to see if it exists first?
 	indToUnits := make(map[string][][]string)
 	for _, ind := range inds {
 		for _, unit := range unitsAll {
@@ -400,9 +406,6 @@ func solveSudoku(path string) (string, error) {
 	// indToPeers is a map of index : its respective peers. peers are all grid
 	// locations (indexes) in the same unit as a given index, no overlap.
 	// i.e."H8:[B8 G7 I9 G8 I8 H1 D8 E8 H8 H9 A8 G9 H2 H3 H5 C8 F8 I7 H4 H6 H7]"
-	// TODO: Should I be using make here? var (zero/nil) value would be
-	// better, then w/in `==` statement, I can check to see if it exists first?
-	// var indToUnits map[string][][]string
 	indToPeers := make(map[string][]string)
 	for _, ind := range inds {
 		peerSet := make(map[string]bool)
@@ -461,9 +464,17 @@ func solveSudoku(path string) (string, error) {
 		return "n", fmt.Errorf("unsolved puzzle")
 	}
 
-	// Show solved puzzle.
-	// TODO: count number of values returned, if len(col)xlen(rows), then sovled
-	display(sVals, inds)
+	// If all 81 values have been solved, return solved Puzzle.
+	nSol := 0
+	for _, vals := range sVals {
+		if len(vals) == 1 {
+			nSol++
+		}
+	}
+	if nSol == 81 {
+		display(sVals, inds)
+		return "n", nil
+	}
 
 	return "n", nil
 }

@@ -10,7 +10,7 @@ func Test_solveSudoku(t *testing.T) {
 		sS    string
 	}{
 		{
-			"./input/puzzle_04.txt",
+			"./input/puzzle_03.txt",
 			"yes",
 		},
 	}
