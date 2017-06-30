@@ -366,10 +366,13 @@ func search(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 	return sVals, true
 }
 
-func solveSudoku(path string) (string, error) {
+func solveSudoku(path string) (map[string][]string, error) {
+	sVals := make(map[string][]string)
+
+	// TODO: this should be pushed back outside the entry point
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
-		return "", err
+		return sVals, err
 	}
 
 	// Global board information.  The Sudoku board is assumed to be a standard
@@ -436,8 +439,6 @@ func solveSudoku(path string) (string, error) {
 	// '123456789' (map['B2'] = '123456789')
 	// TODO: this loop should occur before we initialize everything in case the
 	// input is faulty
-	sVals := make(map[string][]string)
-
 	// i acts as an increment for every target character found.
 	i := 0
 	for _, c := range data {
@@ -451,18 +452,15 @@ func solveSudoku(path string) (string, error) {
 		case "\n", " ", "\r":
 			continue
 		default:
-			return "", fmt.Errorf("unexpected value (%v) in Sudoku input", c)
+			return sVals, fmt.Errorf("unexpected value (%v) in Sudoku input", c)
 		}
 	}
 
 	// Show unsolved puzzle.
 	display(sVals, inds)
 
-	// solve Sudoku puzzle.
-	sVals, ok := search(sVals, unitsAll, indToPeers)
-	if !ok {
-		return "n", fmt.Errorf("unsolved puzzle")
-	}
+	// Solve Sudoku puzzle, recursively.
+	sVals, _ = search(sVals, unitsAll, indToPeers)
 
 	// If all 81 values have been solved, return solved Puzzle.
 	nSol := 0
@@ -473,8 +471,8 @@ func solveSudoku(path string) (string, error) {
 	}
 	if nSol == 81 {
 		display(sVals, inds)
-		return "n", nil
+		return sVals, nil
 	}
 
-	return "n", nil
+	return sVals, fmt.Errorf("unsolved puzzle")
 }
