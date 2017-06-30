@@ -7,11 +7,23 @@ import (
 func Test_solveSudoku(t *testing.T) {
 	var cases = []struct {
 		fpath string
-		sS    string
+		nWant int
 	}{
 		{
+			"./input/puzzle_01.txt",
+			81,
+		},
+		{
+			"./input/puzzle_02.txt",
+			81,
+		},
+		{
 			"./input/puzzle_03.txt",
-			"yes",
+			81,
+		},
+		{
+			"./input/puzzle_04.txt",
+			81,
 		},
 	}
 	for _, c := range cases {
@@ -19,7 +31,16 @@ func Test_solveSudoku(t *testing.T) {
 		if err != nil {
 			t.Errorf("Error retriving solved Sudoku: %v", err)
 		}
-		if sS != c.sS {
+
+		// count number of solved solutions in returned puzzle
+		nGot := 0
+		for _, vals := range sS {
+			if len(vals) == 1 {
+				nGot++
+			}
+		}
+
+		if nGot != c.nWant {
 			t.Errorf("solved Sudoku does not match target\n")
 		}
 	}
