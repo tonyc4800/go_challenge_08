@@ -19,7 +19,6 @@ func crossIndex(A string, N string) []string {
 
 // display produces a 2-D grid representation of the current state of the board.
 func display(sVals map[string][]string, inds []string) {
-	//maxW := 1
 	i := 1
 	for _, u := range inds {
 		vS := sVals[u]
@@ -44,10 +43,10 @@ func display(sVals map[string][]string, inds []string) {
 	}
 }
 
-// createUnitsSlice creates all units. units in this context will be groups of
-// grid indexes that can only contain one instance of a number 1-9.  In Sudoku,
-// a unit will be considered a `rowUnits`(horizontal), a `colUnits`(vertical),
-// and a `blockUnits`(3x3 grid).
+// createUnitsSlice creates & returns units. units are considered groups of grid
+// indexes that can only contain one instance of a number 1-9.  In Sudoku, a
+// unit will be considered a `rowUnits`(horizontal), a `colUnits`(vertical), and
+// a `blockUnits`(3x3 grid).
 func createUnitsSlice(rows string, cols string) [][]string {
 	var unitsSlice [][]string
 
@@ -200,8 +199,6 @@ func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[s
 		// Loop all target naked groups and create a set of the intersect peers
 		// from all groups.
 		for _, ng := range ngS {
-			fmt.Println("===================")
-			fmt.Println(ng)
 			pCount := make(map[string]int)
 			var inxP []string
 			var pSs [][]string
@@ -216,7 +213,6 @@ func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[s
 			// `AND` all slices together to create a slice of all peers at the
 			// intersection of the included indexes. - create a mapping of val:count
 			for _, ps := range pSs {
-				// check if in the set
 				for _, v := range ps {
 					count, ok := pCount[v]
 					if !ok {
@@ -228,10 +224,6 @@ func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[s
 				}
 			}
 
-			// LOOK INTO: why does toggling this line change the output of
-			// fmt.Println(inxP)? Something to due with order/hashing, I'd assume
-			// fmt.Println(pCount)
-
 			// all values in the set that are in all ps, are now at the
 			// intersection of the indexes
 			for k, v := range pCount {
@@ -240,32 +232,28 @@ func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[s
 				}
 			}
 
-			fmt.Println("-------------------")
-			fmt.Println(inxP)
-
 			for _, d := range sVals[ng[0]] {
+
 				// obtain digit were working with. either a group of 2 or 3
 				for _, ind := range inxP {
 					cS := sVals[ind]
 					if len(cS) > 1 {
+
 						// TODO: this should be in outter-happy path line
 						var rS []string
+
 						// loop current slice and eliminate values from above calc.
 						for _, v := range cS {
 							if v != d {
 								rS = append(rS, v)
 							}
 						}
+
 						// assign reduced value back to vals
 						sVals[ind] = rS
-						fmt.Printf("ind: %v, old: %v, new: %v\n", ind, cS, rS)
 					}
 				}
 			}
-			fmt.Printf("\n")
-
-			fmt.Println("===================")
-
 		}
 	}
 
@@ -291,6 +279,7 @@ func reduce(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 		// Attempt to solve puzzle using various strategies.
 		sVals = eliminate(sVals, indToPeers)
 		sVals = onlyChoice(sVals, unitsAll)
+
 		// TODO: check to see if puzzle is solved before calling nakedGroup
 		sVals = nakedGroup(sVals, indToPeers)
 
@@ -304,7 +293,6 @@ func reduce(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 		}
 
 		if nSolE == nSolI {
-			// There were no solutions obtained during reduction.
 			improving = false
 		}
 
@@ -320,28 +308,24 @@ func reduce(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 }
 
 // search accepts a map of potential solutions for the Sudoku puzzle, reduces
-// the puzzle, then, as needed recursively iterates all boxes to find indexes
+// the puzzle, then, as needed, recursively iterates all boxes to find indexes
 // with the fewest possible potential value options. The board is then copied
 // and a guess is made at what the value should be, a more complete Sudoku
 // puzzle will be returned if possible.
 func search(sVals map[string][]string, unitsAll [][]string, indToPeers map[string][]string) (map[string][]string, bool) {
 
-	// First, reduce the board to eliminate unnecessary work.
+	// Eliminate any unnecessary work.
 	sVals, ok := reduce(sVals, unitsAll, indToPeers)
 	if !ok {
 		return sVals, false
 	}
 
-	// Check if solved and obtain unfilled within min possible solutions.
-	// 9 is equal to number of possible values in any given box.
+	// Find a box with the fewest possible solutions. 9 is equal to the max
+	// number of options available to any given index.
 	minV := 9
 	var minK string
 	for cK, valS := range sVals {
-
-		// Check if any values are unsolved.
 		if len(valS) > 1 {
-
-			// Choose a box with the fewest possible solutions
 			if len(valS) < minV {
 				minV = len(valS)
 				minK = cK
@@ -356,11 +340,11 @@ func search(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 			sValsCopy[k] = v
 		}
 
-		// Attempt solution on new board for each potential value
+		// Attempt solution on the new board for each potential value.
 		for _, pS := range sVals[minK] {
 
 			// Assign one of the values to the position and use recurrence to
-			// attempt to solve each resulting puzzle
+			// attempt each resulting puzzle
 			sValsCopy[minK] = []string{pS}
 			sValsCopy, ok = search(sValsCopy, unitsAll, indToPeers)
 			if !ok {
@@ -384,7 +368,6 @@ func solveSudoku(path string) (string, error) {
 	// and the last index (lower right) would be `I9`.
 	rows := "ABCDEFGHI"
 	cols := "123456789"
-
 	inds := crossIndex(rows, cols)
 
 	// Create slice of all units in the Sudoku board.
@@ -398,6 +381,7 @@ func solveSudoku(path string) (string, error) {
 	indToUnits := make(map[string][][]string)
 	for _, ind := range inds {
 		for _, unit := range unitsAll {
+
 			// Determine if the target index is contained in the current unit.
 			for _, ui := range unit {
 				if ind == ui {
@@ -425,13 +409,13 @@ func solveSudoku(path string) (string, error) {
 		uS := indToUnits[ind]
 		for _, u := range uS {
 
-			// build set of all values within a unit for a target index
+			// Build set of all values within a unit for a target index.
 			for _, v := range u {
 				peerSet[v] = true
 			}
 		}
 
-		// convert set to slice of strings
+		// Convert peers set to slice of strings (not inc. the current index).
 		for peer := range peerSet {
 			if peer != ind {
 				peerSlice = append(peerSlice, peer)
@@ -449,6 +433,7 @@ func solveSudoku(path string) (string, error) {
 	// TODO: this loop should occur before we initialize everything in case the
 	// input is faulty
 	sVals := make(map[string][]string)
+
 	// i acts as an increment for every target character found.
 	i := 0
 	for _, c := range data {
@@ -466,14 +451,17 @@ func solveSudoku(path string) (string, error) {
 		}
 	}
 
+	// Show unsolved puzzle.
 	display(sVals, inds)
 
-	// solve
+	// solve Sudoku puzzle.
 	sVals, ok := search(sVals, unitsAll, indToPeers)
 	if !ok {
 		return "n", fmt.Errorf("unsolved puzzle")
 	}
 
+	// Show solved puzzle.
+	// TODO: count number of values returned, if len(col)xlen(rows), then sovled
 	display(sVals, inds)
 
 	return "n", nil
