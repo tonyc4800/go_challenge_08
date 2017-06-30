@@ -104,24 +104,25 @@ func eliminate(sVals map[string][]string, indToPeers map[string][]string) map[st
 		for _, peerI := range peers {
 			potSol := sVals[peerI]
 
-			// TODO: happy path should be along main sightline
-			if len(potSol) != 1 {
-				// Copy potential values to new array, excluding the value to remove.
-				var rSol []string
-				for _, pV := range potSol {
-					if pV != val {
-						rSol = append(rSol, pV)
-					}
-				}
+			if len(potSol) == 1 {
+				continue
+			}
 
-				// Ensure the reduced solution slice is the same, or one smaller,
-				// than the previous solution slice.
-				if len(rSol) == len(potSol) || len(rSol) == len(potSol)-1 {
-
-					// Assign the reduced solution to the index.
-					//fmt.Printf("val:%v p:%v, r:%v\n", val, potSol, rSol)
-					sVals[peerI] = rSol
+			// Copy potential values to new array, excluding the value to remove.
+			var rSol []string
+			for _, pV := range potSol {
+				if pV != val {
+					rSol = append(rSol, pV)
 				}
+			}
+
+			// Ensure the reduced solution slice is the same, or one smaller,
+			// than the previous solution slice.
+			if len(rSol) == len(potSol) || len(rSol) == len(potSol)-1 {
+
+				// Assign the reduced solution to the index.
+				//fmt.Printf("val:%v p:%v, r:%v\n", val, potSol, rSol)
+				sVals[peerI] = rSol
 			}
 
 		}
