@@ -1,5 +1,5 @@
 [//]: # (Image References)
-[image_0]: ./misc/solveSudoku_picture.png
+[image_0]: ./misc/solveSudoku_picture_cropped.png
 
 
 # Go Challenge #8: Sudoku Solver
