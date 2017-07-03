@@ -7,8 +7,7 @@
 Original Project Information can be found [here](http://golang-challenge.org/go-challenge8/). The main functionality is to solve a Sudoku puzzle from a given input.
 
 ## Running the tests
-Running `go test` from within the `./sudoku` directory will run the main tests and will output the included sample starting
-and finishing boards.
+Running `go test` from within the `./sudoku` directory will run the main tests and will output the included sample starting and finishing boards.
 
 ## Strategy
 The solver `solveSudoku()` attempts to solve the given test board using constraint propagation.
