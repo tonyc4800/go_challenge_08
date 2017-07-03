@@ -42,3 +42,4 @@ The solver `solveSudoku()` attempts to solve the given test board using constrai
     - Dockerize
     - Build front end
     - Run on the web
+- Improve return values to include unsolved case
