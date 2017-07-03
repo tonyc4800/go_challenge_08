@@ -1,9 +1,9 @@
 [//]: # (Image References)
-[image_0]: ./misc/solveSudoku_picture.jpg
+[image_0]: ./misc/solveSudoku_picture.png
 
 
 # Go Challenge #8: Sudoku Solver
-![alt text][image_0] 
+![before and after][image_0] 
 Original Project Information can be found [here](http://golang-challenge.org/go-challenge8/). The main functionality is to solve a Sudoku puzzle from a given input.
 
 ## Running the tests
