@@ -117,14 +117,10 @@ func eliminate(sVals map[string][]string, indToPeers map[string][]string) map[st
 			}
 
 			// Ensure the reduced solution slice is the same, or one smaller,
-			// than the previous solution slice.
+			// than the previous solution slice and assign back to the board.
 			if len(rSol) == len(potSol) || len(rSol) == len(potSol)-1 {
-
-				// Assign the reduced solution to the index.
-				//fmt.Printf("val:%v p:%v, r:%v\n", val, potSol, rSol)
 				sVals[peerI] = rSol
 			}
-
 		}
 	}
 
@@ -212,7 +208,7 @@ func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[s
 			}
 
 			// `AND` all slices together to create a slice of all peers at the
-			// intersection of the included indexes. - create a mapping of val:count
+			// intersection of the included indexes-create a mapping of val:count
 			for _, ps := range pSs {
 				for _, v := range ps {
 					count, ok := pCount[v]
@@ -225,7 +221,7 @@ func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[s
 				}
 			}
 
-			// all values in the set that are in all ps, are now at the
+			// All values in the set that are in all ps, are now at the
 			// intersection of the indexes
 			for k, v := range pCount {
 				if v == n {
@@ -235,20 +231,18 @@ func nakedGroup(sVals map[string][]string, indToPeers map[string][]string) map[s
 
 			for _, d := range sVals[ng[0]] {
 
-				// obtain digit were working with. either a group of 2 or 3
+				// Obtain digit were working with.
 				for _, ind := range inxP {
 					cS := sVals[ind]
 					if len(cS) > 1 {
 						var rS []string
 
-						// loop current slice and eliminate values from above calc.
+						// Loop current slice and eliminate values.
 						for _, v := range cS {
 							if v != d {
 								rS = append(rS, v)
 							}
 						}
-
-						// assign reduced value back to vals
 						sVals[ind] = rS
 					}
 				}
@@ -366,10 +360,11 @@ func search(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 	return sVals, true
 }
 
+// solveSudoku is the main entry point.  A path to an input file is accepted and
+// a map of Sudoku board index to the correct value is returned.
 func solveSudoku(path string) (map[string][]string, error) {
 	sVals := make(map[string][]string)
 
-	// TODO: this should be pushed back outside the entry point
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return sVals, err
@@ -381,6 +376,28 @@ func solveSudoku(path string) (map[string][]string, error) {
 	rows := "ABCDEFGHI"
 	cols := "123456789"
 	inds := crossIndex(rows, cols)
+
+	// Convert the string representing the board into a grid(map) that maps a
+	// key (index) to the values (label for the box, or possible label for the
+	// box). for instance, if we know A1=7, map['A1'] = '7', but if the given
+	// index is empty (B2, as an example), the corresponding value would be
+	// '123456789' (map['B2'] = '123456789') NOTE: i acts as an increment for
+	// every target character found.
+	i := 0
+	for _, c := range data {
+		switch string(c) {
+		case "_":
+			sVals[inds[i]] = []string{"1", "2", "3", "4", "5", "6", "7", "8", "9"}
+			i++
+		case "1", "2", "3", "4", "5", "6", "7", "8", "9":
+			sVals[inds[i]] = []string{string(c)}
+			i++
+		case "\n", " ", "\r":
+			continue
+		default:
+			return sVals, fmt.Errorf("unexpected value (%v) in Sudoku input", c)
+		}
+	}
 
 	// Create slice of all units in the Sudoku board.
 	unitsAll := createUnitsSlice(rows, cols)
@@ -432,32 +449,8 @@ func solveSudoku(path string) (map[string][]string, error) {
 		indToPeers[ind] = peerSlice
 	}
 
-	// convert the string representing the board into a grid(map) that maps a
-	// key (index) to the values (label for the box, or possible label for the
-	// box). for instance, if we know A1=7, map['A1'] = '7', but if the given
-	// index is empty (B2, as an example), the corresponding value would be
-	// '123456789' (map['B2'] = '123456789')
-	// TODO: this loop should occur before we initialize everything in case the
-	// input is faulty
-	// i acts as an increment for every target character found.
-	i := 0
-	for _, c := range data {
-		switch string(c) {
-		case "_":
-			sVals[inds[i]] = []string{"1", "2", "3", "4", "5", "6", "7", "8", "9"}
-			i++
-		case "1", "2", "3", "4", "5", "6", "7", "8", "9":
-			sVals[inds[i]] = []string{string(c)}
-			i++
-		case "\n", " ", "\r":
-			continue
-		default:
-			return sVals, fmt.Errorf("unexpected value (%v) in Sudoku input", c)
-		}
-	}
-
-	// Show unsolved puzzle.
-	display(sVals, inds)
+	// Output unsolved puzzle.
+	// display(sVals, inds)
 
 	// Solve Sudoku puzzle, recursively.
 	sVals, _ = search(sVals, unitsAll, indToPeers)
@@ -470,7 +463,8 @@ func solveSudoku(path string) (map[string][]string, error) {
 		}
 	}
 	if nSol == 81 {
-		display(sVals, inds)
+
+		// display(sVals, inds)
 		return sVals, nil
 	}
 
