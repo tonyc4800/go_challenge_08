@@ -305,7 +305,6 @@ func reduce(sVals map[string][]string, unitsAll [][]string, indToPeers map[strin
 				return sVals, false
 			}
 		}
-
 	}
 	return sVals, true
 }
